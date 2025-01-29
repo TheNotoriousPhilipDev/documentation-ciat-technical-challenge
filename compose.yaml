@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysql-agronomic-activities:
+    image: mysql:8
+    container_name: mysql-agronomic-activities
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: activity_db
+    ports:
+      - "3307:3306" 
+    volumes:
+      - mysql-agronomic-activities-data:/var/lib/mysql
+    networks:
+      - agronomics-net
+
+  msvc-agronomic-activities:
+    image: gomezaf/msvc-agronomic-activities:latest  
+    container_name: msvc-agronomic-activities
+    ports:
+      - "8004:8004"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-agronomic-activities:3306/activity_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-agronomic-activities
+    networks:
+      - agronomics-net
+
+  mysql-farm-plot:
+    image: mysql:8
+    container_name: mysql-farm-plot
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: activity_db
+    ports:
+      - "3308:3306"  
+    volumes:
+      - mysql-farm-plot-data:/var/lib/mysql
+    networks:
+      - farm-plot-net
+
+  msvc-farm-plot:
+    image: gomezaf/msvc-farm-plot:latest  
+    container_name: msvc-farm-plot
+    ports:
+      - "8003:8003"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-farm-plot:3306/activity_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - mysql-farm-plot
+    networks:
+      - farm-plot-net
+
+volumes:
+  mysql-agronomic-activities-data:
+  mysql-farm-plot-data:
+
+networks:
+  agronomics-net:
+    driver: bridge
+  farm-plot-net:
+    driver: bridge
